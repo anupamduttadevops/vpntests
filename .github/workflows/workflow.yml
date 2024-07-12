@@ -34,7 +34,7 @@ jobs:
       - name: SSH into EC2 and Create Folder
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_PRIVATE_IP }}
+          host: ${{ secrets.EC2_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
