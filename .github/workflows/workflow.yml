@@ -1,0 +1,41 @@
+name: SSH into EC2 Behind VPN
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+
+      - name: Set Up VPN Configuration
+        run: |
+          echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
+
+      - name: Connect to VPN
+        run: |
+          sudo openvpn --config vpn_config.ovpn --daemon
+          sleep 10
+
+      - name: SSH into EC2 and Create Folder
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_PRIVATE_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: mkdir -p ~/new_folder
+
+      - name: Clean Up VPN Configuration
+        run: |
+          rm -f vpn_config.ovpn
