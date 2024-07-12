@@ -18,13 +18,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn
 
-      - name: Set Up VPN Configuration
+      - name: Set Up VPN Configuration and Credentials
         run: |
           echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
+          echo "${{ secrets.VPN_USERNAME }}" > vpn_username.txt
+          echo "${{ secrets.VPN_PASSWORD }}" > vpn_password.txt
+          echo "${{ secrets.VPN_USERNAME }}" > vpn_credentials.txt
+          echo "${{ secrets.VPN_PASSWORD }}" >> vpn_credentials.txt
 
       - name: Connect to VPN
         run: |
-          sudo openvpn --config vpn_config.ovpn --daemon
+          sudo openvpn --config vpn_config.ovpn --auth-user-pass vpn_credentials.txt --daemon
           sleep 10
 
       - name: SSH into EC2 and Create Folder
@@ -38,4 +42,4 @@ jobs:
 
       - name: Clean Up VPN Configuration
         run: |
-          rm -f vpn_config.ovpn
+          rm -f vpn_config.ovpn vpn_credentials.txt
